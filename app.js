@@ -37,6 +37,29 @@ app.get("/results", function(req, res){
     });
 });
 
+//Implementation of the RESTFULL calls from SFDC get amount
+app.get("/rates/:amount", (req, res) => {
+	console.log(req.params);
+	console.log(req.params.amount);
+	//res.send("Ok, working and returning: " + req.params.amount);
+	//Implement the logic to return JSON Then get this to heroku update and you'll have the app ready
+	
+	const url = "http://data.fixer.io/api/latest?access_key=8a31270dcf21bc8993b57ea28f81c9ce&symbols=USD,CAD,EUR,MXN";
+   request(url, function(error, response, body){
+    if(!error && response.statusCode == 200) {
+        let data = JSON.parse(body);
+		//Logic to be able to convert the input from fixer.
+		//Returning JSON preparation
+		res.setHeader('Content-Type', 'application/json');
+		res.send(JSON.stringify({ 
+			"EUR": (data.rates['EUR'] * req.params.amount).toFixed(2),
+			"USD": (data.rates['USD'] * req.params.amount).toFixed(2),
+			"CAD": (data.rates['CAD'] * req.params.amount).toFixed(2),
+			"MXN": (data.rates['MXN'] * req.params.amount).toFixed(2),
+								}));
+		}
+		});
+});
 
 app.listen(PORT, function() {
     console.log("App has started!");
